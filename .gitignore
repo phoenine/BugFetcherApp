@@ -1,0 +1,27 @@
+**/__pycache__
+**/.mypy_cache
+**/.pytest_cache
+/.vscode/
+
+# virtualenv
+.venv
+venv/
+venv
+
+# Distribution
+.DS_Store
+.env
+.cache/
+*.pyc
+*.tmp
+*.err
+*.log
+
+# python identifiers
+.python-version
+
+# pytest report
+/assets/
+/reports/
+/logs/
+.coverage

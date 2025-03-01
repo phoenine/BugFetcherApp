@@ -1,0 +1,276 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Bug Fetcher API
+  license:
+    name: MIT
+servers:
+  - url: https://api.bugfetcher.com/v1
+paths:
+  /api/config:
+    get:
+      summary: Get Config
+      operationId: getConfig
+      tags:
+        - config
+      responses:
+        '200':
+          description: A JSON object containing the current configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfigModel"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Update Config
+      operationId: updateConfig
+      tags:
+        - config
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfigModel"
+      responses:
+        '200':
+          description: Configuration updated successfully
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/login:
+    post:
+      summary: Login
+      operationId: login
+      tags:
+        - authentication
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Access token
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/products:
+    get:
+      summary: Get Products
+      operationId: getProducts
+      tags:
+        - products
+      responses:
+        '200':
+          description: A list of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_id:
+                      type: string
+                    product_name:
+                      type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/select-product:
+    post:
+      summary: Select Product
+      operationId: selectProduct
+      tags:
+        - products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductSelection"
+      responses:
+        '200':
+          description: Product selected successfully
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/bugs:
+    get:
+      summary: Fetch Bugs
+      operationId: fetchBugs
+      tags:
+        - bugs
+      responses:
+        '200':
+          description: A list of bugs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    bug_id:
+                      type: string
+                    description:
+                      type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/send-to-feishu:
+    post:
+      summary: Send To Feishu
+      operationId: sendToFeishu
+      tags:
+        - notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeishuMessage"
+      responses:
+        '200':
+          description: Message sent successfully
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/status:
+    get:
+      summary: Get Status
+      operationId: getStatus
+      tags:
+        - status
+      responses:
+        '200':
+          description: System status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: System's current status (e.g., "OK")
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    ConfigModel:
+      type: object
+      required:
+        - zentao_url
+        - zentao_username
+        - zentao_password
+        - feishu_webhook_url
+      properties:
+        zentao_url:
+          type: string
+          description: Zentao URL
+        zentao_username:
+          type: string
+          description: Zentao username
+        zentao_password:
+          type: string
+          description: Zentao password
+        feishu_webhook_url:
+          type: string
+          description: Feishu Webhook URL
+        fetch_interval:
+          type: integer
+          description: Fetch interval (in seconds)
+    FeishuMessage:
+      type: object
+      required:
+        - total
+        - bugs
+        - realname
+      properties:
+        total:
+          type: integer
+          description: Total number of bugs
+        bugs:
+          type: array
+          items:
+            type: object
+          description: List of bugs
+        realname:
+          type: string
+          description: User's real name
+        suggestion:
+          type: string
+          description: Suggested improvements
+    ProductSelection:
+      type: object
+      required:
+        - product_id
+        - product_name
+      properties:
+        product_id:
+          type: string
+          description: The ID of the product
+        product_name:
+          type: string
+          description: The name of the product
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          description: Error code
+        message:
+          type: string
+          description: Error message
